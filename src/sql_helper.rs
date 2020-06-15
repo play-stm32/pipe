@@ -12,7 +12,7 @@ impl SqlHelper {
         }
     }
 
-    pub fn execute_non_query(&self, cmd: String) -> Result<QueryResult, Error> {
+    pub fn execute_query(&self, cmd: String) -> Result<QueryResult, Error> {
         return self.sql_helper.prep_exec(cmd, ())
     }
 }

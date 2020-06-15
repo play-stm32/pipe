@@ -5,11 +5,11 @@ mod user;
 
 use actix_web::{web, App, HttpServer};
 use std::thread;
+use std::sync::Mutex;
+use std::collections::HashMap;
 use crate::server::Server;
 use crate::device::token::get_new_token;
 use crate::device::command::send_command;
-use std::sync::Mutex;
-use std::collections::HashMap;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

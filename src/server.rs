@@ -5,9 +5,10 @@ use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 use crate::sql_helper::SqlHelper;
 
-pub enum TokenError {
+pub enum CheckError {
     NoRegister,
     NoSendToken,
+    QueryError
 }
 
 pub struct Server {
@@ -43,9 +44,13 @@ impl Server {
                 Ok(mut stream) => {
                     let info = stream.peer_addr().unwrap();
                     println!("{} online", info);
+
                     if let Ok(uuid) = check_token(&mut stream) {
+                        let uuid_clone = uuid.clone();
                         clients.lock().unwrap().insert(uuid, stream.try_clone().unwrap());
-                        thread::spawn(move || receive(stream));
+                        let clients_clone = clients.clone();
+
+                        thread::spawn(move || receive(uuid_clone, stream, clients_clone));
                         println!("device listening: {}", info);
                     } else {
                         stream.shutdown(Shutdown::Both).unwrap();
@@ -56,7 +61,7 @@ impl Server {
     }
 }
 
-fn receive(mut stream: TcpStream) {
+fn receive(uuid: String, mut stream: TcpStream, clients: Arc<Mutex<HashMap<String, TcpStream>>>) {
     let mut buf = [0; 1024];
     loop {
         match stream.read(&mut buf) {
@@ -69,13 +74,14 @@ fn receive(mut stream: TcpStream) {
                 }
             },
             Err(_) => {
+                clients.lock().unwrap().remove(&uuid).unwrap();
                 println!("device left");
             }
         }
     }
 }
 
-fn check_token(stream: &mut TcpStream) -> Result<String, TokenError> {
+fn check_token(stream: &mut TcpStream) -> Result<String, CheckError> {
     let mut buf = [0; 1024];
     match stream.read(&mut buf) {
         Ok(len) => {
@@ -83,20 +89,24 @@ fn check_token(stream: &mut TcpStream) -> Result<String, TokenError> {
             let cmd = format!(r"SELECT * FROM uuid WHERE value = '{}'"
                               , uuid);
 
-            match SqlHelper::connect().execute_non_query(cmd) {
-                Ok(_) => {
-                    println!("check token successfully");
-                    Ok(uuid)
+            match SqlHelper::connect().execute_query(cmd) {
+                Ok(res) => {
+                    if res.count() != 0 {
+                        println!("check token successfully");
+                        Ok(uuid)
+                    } else {
+                        println!("token has no register");
+                        return Err(CheckError::NoRegister)
+                    }
                 }
                 Err(_) => {
-                    println!("token has no register");
-                    return Err(TokenError::NoRegister)
+                    return Err(CheckError::QueryError)
                 }
             }
         }
         Err(_) => {
             println!("{} left", stream.peer_addr().unwrap());
-            Err(TokenError::NoSendToken)
+            Err(CheckError::NoSendToken)
         }
     }
 }

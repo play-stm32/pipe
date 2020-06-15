@@ -10,8 +10,8 @@ use std::io::Write;
 pub async fn send_command(req: HttpRequest,
                           request: web::Json<Request>,
                           clients: web::Data<Mutex<HashMap<String, TcpStream>>>) -> impl Responder {
-    println!("Hello");
     let uuid = req.match_info().get("uuid").unwrap_or("none");
+
     let clients = clients.clone().into_inner();
     let client = clients.lock().unwrap();
     let mut client = client.get(&uuid.to_string()).unwrap();

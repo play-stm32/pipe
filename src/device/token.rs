@@ -10,7 +10,7 @@ pub async fn get_new_token() -> impl Responder {
     let cmd = format!(r"INSERT INTO uuid (value) VALUES ('{}')"
                       , uuid.to_string());
 
-    match SqlHelper::connect().execute_non_query(cmd) {
+    match SqlHelper::connect().execute_query(cmd) {
         Ok(_) => {
             format!("add token: {} to your device", uuid)
         }
