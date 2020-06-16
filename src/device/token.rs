@@ -1,10 +1,7 @@
-use actix_web::Responder;
-use actix_web::get;
-
 use crate::sql_helper::SqlHelper;
 
-#[get("/new_token")]
-pub async fn get_new_token() -> impl Responder {
+#[get("/device/new_token")]
+pub fn new_token() -> String {
     let uuid = uuid::Uuid::new_v4();
 
     let cmd = format!(r"INSERT INTO uuid (value) VALUES ('{}')"

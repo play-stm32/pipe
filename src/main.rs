@@ -1,30 +1,25 @@
+#![feature(proc_macro_hygiene, decl_macro)]
+#[macro_use] extern crate rocket;
+
 mod server;
 mod sql_helper;
 mod device;
 mod user;
 
-use actix_web::{web, App, HttpServer};
 use std::thread;
-use std::sync::Mutex;
+use std::sync::{Mutex, Arc};
 use std::collections::HashMap;
 use crate::server::Server;
-use crate::device::token::get_new_token;
-use crate::device::command::send_command;
+use crate::device::token::static_rocket_route_info_for_new_token;
+use crate::device::command::static_rocket_route_info_for_send_command;
 
-#[actix_rt::main]
-async fn main() -> std::io::Result<()> {
+fn main() {
     let server = Server::new().build();
-    let data = Mutex::new(HashMap::new());
-    let data = web::Data::new(data);
-    let clients = data.clone().into_inner();
+    let clients = Arc::new(Mutex::new(HashMap::new()));
+    let clients_clone = clients.clone();
     thread::spawn(move || server.start(clients));
 
-    HttpServer::new(move || {
-        App::new().service(
-            web::scope("/device")
-                .service(get_new_token)
-                .app_data(data.clone())
-                .service(send_command)
-        )
-    }).bind("127.0.0.1:8000")?.run().await
+    rocket::ignite()
+        .mount("/", routes![new_token, send_command])
+        .manage(clients_clone).launch();
 }

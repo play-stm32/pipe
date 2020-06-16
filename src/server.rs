@@ -68,9 +68,9 @@ fn receive(uuid: String, mut stream: TcpStream, clients: Arc<Mutex<HashMap<Strin
             Ok(len) => {
                 let response = String::from_utf8(Vec::from(&buf[0..len])).unwrap();
                 if response.contains("OK") {
-                    println!("operate done");
+                    println!("Command executed");
                 } else {
-                    println!("operate error");
+                    println!("Command not executed");
                 }
             },
             Err(_) => {

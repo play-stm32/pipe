@@ -1,21 +1,16 @@
-use actix_web::{Responder, web, HttpResponse, HttpRequest};
-use actix_web::post;
 use protocol::protocol::Request;
-use std::sync::Mutex;
+use std::sync::{Mutex, Arc};
 use std::collections::HashMap;
 use std::net::TcpStream;
 use std::io::Write;
+use rocket::State;
+use rocket_contrib::json::Json;
 
-#[post("/command/{uuid}")]
-pub async fn send_command(req: HttpRequest,
-                          request: web::Json<Request>,
-                          clients: web::Data<Mutex<HashMap<String, TcpStream>>>) -> impl Responder {
-    let uuid = req.match_info().get("uuid").unwrap_or("none");
-
-    let clients = clients.clone().into_inner();
+#[post("/device/command/<uuid>", format = "json", data = "<request>")]
+pub fn send_command(uuid: String, request: Json<Request>
+                    , clients: State<Arc<Mutex<HashMap<String, TcpStream>>>>) -> String {
     let client = clients.lock().unwrap();
     let mut client = client.get(&uuid.to_string()).unwrap();
-
     client.write(&serde_json::to_vec(&request.into_inner()).unwrap()).unwrap();
-    HttpResponse::Ok()
+    "Ok".to_string()
 }
