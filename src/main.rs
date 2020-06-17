@@ -12,6 +12,8 @@ use std::collections::HashMap;
 use crate::server::Server;
 use crate::device::token::static_rocket_route_info_for_new_token;
 use crate::device::command::static_rocket_route_info_for_send_command;
+use crate::user::login::static_rocket_route_info_for_login;
+use rocket_contrib::serve::StaticFiles;
 
 fn main() {
     let server = Server::new().build();
@@ -20,6 +22,7 @@ fn main() {
     thread::spawn(move || server.start(clients));
 
     rocket::ignite()
-        .mount("/", routes![new_token, send_command])
+        .mount("/", routes![new_token, send_command, login])
+        .mount("/", StaticFiles::from("static"))
         .manage(clients_clone).launch();
 }
