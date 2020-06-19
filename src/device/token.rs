@@ -1,6 +1,6 @@
 use crate::sql_helper::SqlHelper;
 
-#[get("/device/new_token")]
+#[get("/new_token")]
 pub fn new_token() -> String {
     let uuid = uuid::Uuid::new_v4();
 

@@ -18,15 +18,20 @@ function get_register_device() {
 
             let command_select = document.createElement("select");
             let command_option = document.createElement("option");
-            command_option.text = "GreenLedLight";
+            command_option.text = "GreenLEDLight";
+
+            let command_option1 = document.createElement("option");
+            command_option1.text = "GreenLEDDark";
 
             let button = document.createElement("input");
-            button.type = "button"
+            button.type = "button";
+            button.id = request;
             button.onclick = execute;
             button.value = "执行";
 
             type_select.appendChild(type_option);
             command_select.appendChild(command_option);
+            command_select.appendChild(command_option1);
 
             operation.appendChild(type_select);
             operation.appendChild(command_select);
@@ -40,13 +45,18 @@ function get_register_device() {
 }
 
 function execute() {
+    let td = this.parentElement;
+    let command_select = td.children[1];
+    let command_option_index = command_select.selectedIndex;
+    let command_option = command_select.children[command_option_index].value;
+
     $.ajax({
         type: "POST",
         dataType: "text",
-        url: "/device/command/xxx",
+        url: "/device/command/" + this.id,
         contentType: "application/json",
         data: JSON.stringify({
-            "board": "GreenLEDLight",
+            "board": command_option.toString(),
             "esp": "None"
         }),
     });

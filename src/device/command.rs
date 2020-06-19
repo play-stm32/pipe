@@ -6,7 +6,7 @@ use std::io::Write;
 use rocket::State;
 use rocket_contrib::json::Json;
 
-#[post("/device/command/<uuid>", format = "json", data = "<request>")]
+#[post("/command/<uuid>", format = "json", data = "<request>")]
 pub fn send_command(uuid: String, request: Json<Request>
                     , clients: State<Arc<Mutex<HashMap<String, TcpStream>>>>) -> String {
     let client = clients.lock().unwrap();
