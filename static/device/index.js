@@ -1,52 +1,61 @@
 function get_register_device() {
     $.ajax({
         type: "GET",
-        dataType: "text",
+        dataType: "json",
         url: "/device/get_register_device",
         contentType: "",
         data: "",
-        success: function (request) {
+        success: function (json) {
             let table = document.getElementById("device");
-            let tr = document.createElement('tr');
-            let token = document.createElement('td');
-            token.innerText = request;
-
-            let operation = document.createElement('td');
-            let type_select = document.createElement("select");
-            let type_option = document.createElement("option");
-            type_option.text = "Board";
-
-            let command_select = document.createElement("select");
-            let command_option = document.createElement("option");
-            command_option.text = "GreenLEDLight";
-
-            let command_option1 = document.createElement("option");
-            command_option1.text = "GreenLEDDark";
-
-            let button = document.createElement("input");
-            button.type = "button";
-            button.id = request;
-            button.onclick = execute;
-            button.value = "执行";
-
-            type_select.appendChild(type_option);
-            command_select.appendChild(command_option);
-            command_select.appendChild(command_option1);
-
-            operation.appendChild(type_select);
-            operation.appendChild(command_select);
-            operation.appendChild(button);
-
-            tr.appendChild(token);
-            tr.appendChild(operation);
+            let tr = document.createElement("tr");
+            let th1 = document.createElement("th");
+            let th2 = document.createElement("th");
+            th1.innerText = "token";
+            th2.innerText = "操作";
+            tr.appendChild(th1);
+            tr.appendChild(th2);
             table.appendChild(tr);
+
+            for (let value of json) {
+                let tr = document.createElement("tr");
+                let token = document.createElement("td");
+                let op = document.createElement("td");
+
+                token.innerText = value.token;
+
+                if (value.online) {
+                    let command_select = document.createElement("select");
+                    let command_option = document.createElement("option");
+                    let button = document.createElement("input");
+
+                    command_option.text = "GreenLEDLight";
+
+                    button.type = "button";
+                    button.id = value.token;
+                    button.onclick = execute;
+                    button.value = "执行";
+
+                    command_select.appendChild(command_option);
+                    op.appendChild(command_select);
+                    op.appendChild(button);
+                } else {
+                    op.innerText = "设备离线";
+                }
+
+                tr.appendChild(token);
+                tr.appendChild(op);
+                table.appendChild(tr);
+            }
+        },
+        error: function () {
+            window.location.href = "/user/login";
         }
     });
 }
 
 function execute() {
     let td = this.parentElement;
-    let command_select = td.children[1];
+    let command_select = td.children[0];
     let command_option_index = command_select.selectedIndex;
     let command_option = command_select.children[command_option_index].value;
 

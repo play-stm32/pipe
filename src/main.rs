@@ -10,6 +10,7 @@ mod device;
 mod user;
 mod db;
 mod schema;
+mod cookie;
 
 use std::thread;
 use std::sync::{Mutex, Arc};

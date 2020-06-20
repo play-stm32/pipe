@@ -2,6 +2,7 @@ use rocket_contrib::json::Json;
 use rocket::http::{Cookie, Cookies};
 use rocket::local::Client;
 use crate::db::user::User;
+use crate::cookie::generate_chksum;
 
 #[post("/login", format = "json", data = "<info>")]
 pub fn login(mut cookies: Cookies<'_>, info: Json<User>) -> String {
@@ -31,7 +32,7 @@ pub fn login(mut cookies: Cookies<'_>, info: Json<User>) -> String {
                 cookies.add(cookie_one);
                 cookies.add(cookie_two);
 
-                "/device/new_token".to_string()
+                "/device".to_string()
             } else {
                 "/user/login".to_string()
             }
@@ -41,12 +42,4 @@ pub fn login(mut cookies: Cookies<'_>, info: Json<User>) -> String {
         }
     };
     redirect
-}
-
-pub fn generate_chksum(name: &[u8]) -> u8 {
-    let mut chksum = 0;
-    for &i in name {
-        chksum = (if chksum & 1 == 1 { 0x80 } else { 0 } + (chksum >> 1) + i as u32) & 0xFF;
-    }
-    chksum as u8
 }
