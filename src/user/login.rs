@@ -9,7 +9,7 @@ pub fn login(mut cookies: Cookies<'_>, info: Json<User>) -> String {
     let info = info.into_inner();
 
     let uri = format!("/db/user/get_by_name/{}", info.username);
-    let client = Client::new(crate::rocket()).unwrap();
+    let client = Client::new(crate::rocket_inside()).unwrap();
     let mut response = client.get(uri).dispatch();
 
     let redirect = match serde_json::from_str::<User>(&response.body_string().unwrap()) {

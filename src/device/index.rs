@@ -26,7 +26,7 @@ pub fn get_register_device(cookies: Cookies<'_>
 
     if pass {
         let uri = format!("/db/token/get_by_owner/{}", username);
-        let client = Client::new(crate::rocket()).unwrap();
+        let client = Client::new(crate::rocket_inside()).unwrap();
         let mut response = client.get(uri).dispatch();
         let tokens: Vec<Token> = serde_json::from_str(&response.body_string().unwrap()).unwrap();
         let tokens: Vec<Device> = tokens.iter().map(|t| {

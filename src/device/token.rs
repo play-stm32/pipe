@@ -13,7 +13,7 @@ pub fn new_token(cookies: Cookies<'_>) -> String {
     let username = status.1;
 
     if pass {
-        let client = Client::new(crate::rocket()).unwrap();
+        let client = Client::new(crate::rocket_inside()).unwrap();
         let new_token = Token {
             value: uuid.to_string(),
             owner: username.to_string()

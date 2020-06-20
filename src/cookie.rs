@@ -15,7 +15,7 @@ pub fn check_status(cookies: &Cookies<'_>) -> (bool, String) {
         let chksum = user.get("chksum").unwrap();
 
         let uri = format!("/db/user/get_by_name/{}", username);
-        let client = Client::new(crate::rocket()).unwrap();
+        let client = Client::new(crate::rocket_inside()).unwrap();
         let mut response = client.get(uri).dispatch();
 
         match serde_json::from_str::<User>(&response.body_string().unwrap()) {
