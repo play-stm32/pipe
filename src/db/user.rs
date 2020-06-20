@@ -17,7 +17,7 @@ pub fn user_read(conn: DbConn) -> Result<Json<Vec<User>>, String> {
     }).map(Json)
 }
 
-#[get("/get/<name>")]
+#[get("/get_by_name/<name>")]
 pub fn user_read_by_name(conn: DbConn, name: String) -> Result<Json<User>, String> {
     use crate::schema::user::dsl::user;
     let users: Vec<User> = user.load(&conn.0).map_err(|err| -> String {

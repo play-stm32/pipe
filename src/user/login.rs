@@ -7,7 +7,7 @@ use crate::db::user::User;
 pub fn login(mut cookies: Cookies<'_>, info: Json<User>) -> String {
     let info = info.into_inner();
 
-    let uri = format!("/db/user/get/{}", info.username);
+    let uri = format!("/db/user/get_by_name/{}", info.username);
     let client = Client::new(crate::rocket()).unwrap();
     let mut response = client.get(uri).dispatch();
 

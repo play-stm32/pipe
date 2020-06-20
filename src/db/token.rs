@@ -20,7 +20,7 @@ pub fn token_read(conn: DbConn) -> Result<Json<Vec<Token>>, String> {
     }).map(Json)
 }
 
-#[get("/get/<value>")]
+#[get("/get_by_value/<value>")]
 pub fn token_read_by_value(conn: DbConn, value: String) -> Result<Json<Token>, String> {
     use crate::schema::token::dsl::token;
     let tokens: Vec<Token> = token.load(&conn.0).map_err(|err| -> String {
@@ -28,11 +28,24 @@ pub fn token_read_by_value(conn: DbConn, value: String) -> Result<Json<Token>, S
         "Error querying".into()
     }).unwrap();
 
-    if let Some(value) = tokens.into_iter().find(|s| s.value.eq(&value)) {
+    if let Some(value) = tokens.into_iter().find(|t| t.value.eq(&value)) {
         Ok(Json(value))
     } else {
         return Err("No Match Token".to_string());
     }
+}
+
+#[get("/get_by_owner/<owner>")]
+pub fn token_read_by_owner(conn: DbConn, owner: String) -> Result<Json<Vec<Token>>, String> {
+    use crate::schema::token::dsl::token;
+    let tokens: Vec<Token> = token.load(&conn.0).map_err(|err| -> String {
+        println!("Error querying: {:?}", err);
+        "Error querying".into()
+    }).unwrap();
+    let tokens = tokens.into_iter()
+        .filter(|t| t.owner.eq(&owner)).collect::<Vec<Token>>();
+
+    Ok(Json(tokens))
 }
 
 #[delete("/delete/<key>")]

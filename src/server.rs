@@ -88,7 +88,7 @@ fn check_token(stream: &mut TcpStream) -> Result<String, CheckError> {
             let uuid = String::from_utf8(Vec::from(&buf[0..len])).unwrap();
 
             let client = Client::new(crate::rocket()).unwrap();
-            let uri = format!("/db/token/get/{}", uuid);
+            let uri = format!("/db/token/get_by_value/{}", uuid);
             let mut response = client.get(uri).dispatch();
 
             match serde_json::from_str::<Token>(&response.body_string().unwrap()) {

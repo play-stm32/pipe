@@ -20,7 +20,7 @@ pub fn new_token(cookies: Cookies<'_>) -> String {
         let username = user.get("username").unwrap();
         let chksum = user.get("chksum").unwrap();
 
-        let uri = format!("/db/user/get/{}", username);
+        let uri = format!("/db/user/get_by_name/{}", username);
         let client = Client::new(crate::rocket()).unwrap();
         let mut response = client.get(uri).dispatch();
 
