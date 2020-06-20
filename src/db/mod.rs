@@ -1,2 +1,2 @@
-pub mod uuid;
+pub mod token;
 pub mod user;

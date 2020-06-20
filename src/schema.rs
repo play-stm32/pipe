@@ -1,5 +1,5 @@
 table! {
-    uuid (value) {
+    token (value) {
         value -> Varchar,
         owner -> Varchar,
     }

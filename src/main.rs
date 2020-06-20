@@ -1,12 +1,9 @@
 #![feature(proc_macro_hygiene, decl_macro)]
-#![feature(option_result_contains)]
 
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate rocket_contrib;
 #[macro_use] extern crate serde_derive;
-
-extern crate time;
 
 mod server;
 mod sql_helper;
@@ -15,7 +12,7 @@ mod user;
 mod db;
 mod schema;
 
-use std::{thread, env};
+use std::thread;
 use std::sync::{Mutex, Arc};
 use std::collections::HashMap;
 use rocket_contrib::serve::StaticFiles;
@@ -25,8 +22,11 @@ use crate::device::token::static_rocket_route_info_for_new_token;
 use crate::device::command::static_rocket_route_info_for_send_command;
 use crate::device::index::static_rocket_route_info_for_get_register_device;
 use crate::user::login::static_rocket_route_info_for_login;
-use crate::db::uuid::static_rocket_route_info_for_uuid_read;
+use crate::db::token::static_rocket_route_info_for_token_read;
+use crate::db::token::static_rocket_route_info_for_token_delete;
+use crate::db::token::static_rocket_route_info_for_token_create;
 use crate::db::user::static_rocket_route_info_for_user_read;
+use crate::db::user::static_rocket_route_info_for_user_read_by_name;
 
 #[database("info")]
 pub struct DbConn(diesel::MysqlConnection);
@@ -37,7 +37,8 @@ fn rocket() -> rocket::Rocket {
         .mount("/", StaticFiles::from("static"))
         .mount("/device", routes![new_token, send_command, get_register_device])
         .mount("/user", routes![login])
-        .mount("/db", routes![uuid_read, user_read])
+        .mount("/db/token", routes![token_read, token_delete, token_create])
+        .mount("/db/user", routes![user_read, user_read_by_name])
 }
 
 fn main() {

@@ -1,24 +1,19 @@
 use rocket_contrib::json::Json;
-use serde::Deserialize;
 use rocket::http::{Cookie, Cookies};
 use rocket::local::Client;
-
-use crate::sql_helper::SqlHelper;
-use crate::DbConn;
 use crate::db::user::User;
 
 #[post("/login", format = "json", data = "<info>")]
 pub fn login(mut cookies: Cookies<'_>, info: Json<User>) -> String {
     let info = info.into_inner();
-    let cmd = format!(r"SELECT * FROM user WHERE username = '{}' AND password = '{}'", info.username, info.password);
 
-    let client = Client::new(super::super::rocket()).unwrap();
-    let mut response = client.get("/db/user/get").dispatch();
-    println!("{}", response.body_string().unwrap());
+    let uri = format!("/db/user/get/{}", info.username);
+    let client = Client::new(crate::rocket()).unwrap();
+    let mut response = client.get(uri).dispatch();
 
-    let redirect = match SqlHelper::connect().execute_query(cmd) {
-        Ok(res) => {
-            if res.count() != 0 {
+    let redirect = match serde_json::from_str::<User>(&response.body_string().unwrap()) {
+        Ok(user) => {
+            if user.password.eq(&info.password) {
                 let chksum = generate_chksum(info.password.as_bytes());
 
                 let cookie_one = Cookie::build("username", info.username)
@@ -48,7 +43,7 @@ pub fn login(mut cookies: Cookies<'_>, info: Json<User>) -> String {
     redirect
 }
 
-fn generate_chksum(name: &[u8]) -> u8 {
+pub fn generate_chksum(name: &[u8]) -> u8 {
     let mut chksum = 0;
     for &i in name {
         chksum = (if chksum & 1 == 1 { 0x80 } else { 0 } + (chksum >> 1) + i as u32) & 0xFF;
