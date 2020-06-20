@@ -3,12 +3,12 @@ use std::io::Read;
 use std::thread;
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
-use crate::sql_helper::SqlHelper;
+use rocket::local::Client;
+use crate::db::token::Token;
 
 pub enum CheckError {
     NoRegister,
     NoSendToken,
-    QueryError
 }
 
 pub struct Server {
@@ -72,7 +72,7 @@ fn receive(uuid: String, mut stream: TcpStream, clients: Arc<Mutex<HashMap<Strin
                 } else {
                     println!("Command not executed");
                 }
-            },
+            }
             Err(_) => {
                 clients.lock().unwrap().remove(&uuid).unwrap();
                 println!("device left");
@@ -86,21 +86,19 @@ fn check_token(stream: &mut TcpStream) -> Result<String, CheckError> {
     match stream.read(&mut buf) {
         Ok(len) => {
             let uuid = String::from_utf8(Vec::from(&buf[0..len])).unwrap();
-            let cmd = format!(r"SELECT * FROM uuid WHERE value = '{}'"
-                              , uuid);
 
-            match SqlHelper::connect().execute_query(cmd) {
-                Ok(res) => {
-                    if res.count() != 0 {
-                        println!("check token successfully");
-                        Ok(uuid)
-                    } else {
-                        println!("token has no register");
-                        return Err(CheckError::NoRegister)
-                    }
+            let client = Client::new(crate::rocket()).unwrap();
+            let uri = format!("/db/token/get/{}", uuid);
+            let mut response = client.get(uri).dispatch();
+
+            match serde_json::from_str::<Token>(&response.body_string().unwrap()) {
+                Ok(_) => {
+                    println!("check token successfully");
+                    Ok(uuid)
                 }
                 Err(_) => {
-                    return Err(CheckError::QueryError)
+                    println!("token has no register");
+                    return Err(CheckError::NoRegister);
                 }
             }
         }

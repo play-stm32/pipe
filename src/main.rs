@@ -6,7 +6,6 @@
 #[macro_use] extern crate serde_derive;
 
 mod server;
-mod sql_helper;
 mod device;
 mod user;
 mod db;
@@ -23,6 +22,7 @@ use crate::device::command::static_rocket_route_info_for_send_command;
 use crate::device::index::static_rocket_route_info_for_get_register_device;
 use crate::user::login::static_rocket_route_info_for_login;
 use crate::db::token::static_rocket_route_info_for_token_read;
+use crate::db::token::static_rocket_route_info_for_token_read_by_value;
 use crate::db::token::static_rocket_route_info_for_token_delete;
 use crate::db::token::static_rocket_route_info_for_token_create;
 use crate::db::user::static_rocket_route_info_for_user_read;
@@ -37,7 +37,7 @@ fn rocket() -> rocket::Rocket {
         .mount("/", StaticFiles::from("static"))
         .mount("/device", routes![new_token, send_command, get_register_device])
         .mount("/user", routes![login])
-        .mount("/db/token", routes![token_read, token_delete, token_create])
+        .mount("/db/token", routes![token_read, token_read_by_value, token_delete, token_create])
         .mount("/db/user", routes![user_read, user_read_by_name])
 }
 

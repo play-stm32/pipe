@@ -20,6 +20,21 @@ pub fn token_read(conn: DbConn) -> Result<Json<Vec<Token>>, String> {
     }).map(Json)
 }
 
+#[get("/get/<value>")]
+pub fn token_read_by_value(conn: DbConn, value: String) -> Result<Json<Token>, String> {
+    use crate::schema::token::dsl::token;
+    let tokens: Vec<Token> = token.load(&conn.0).map_err(|err| -> String {
+        println!("Error querying: {:?}", err);
+        "Error querying".into()
+    }).unwrap();
+
+    if let Some(value) = tokens.into_iter().find(|s| s.value.eq(&value)) {
+        Ok(Json(value))
+    } else {
+        return Err("No Match Token".to_string());
+    }
+}
+
 #[delete("/delete/<key>")]
 pub fn token_delete(conn: DbConn, key: String) -> Result<JsonValue, JsonValue> {
     use crate::schema::token::dsl::token;
