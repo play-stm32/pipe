@@ -76,6 +76,7 @@ fn receive(uuid: String, mut stream: TcpStream, clients: Arc<Mutex<HashMap<Strin
             Err(_) => {
                 clients.lock().unwrap().remove(&uuid).unwrap();
                 println!("device left");
+                break;
             }
         }
     }
