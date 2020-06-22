@@ -4,6 +4,16 @@ use rocket::local::Client;
 use std::str::FromStr;
 use crate::db::user::User;
 
+#[get("/check")]
+pub fn check(cookies: Cookies<'_>) -> String {
+    let status = check_status(&cookies);
+    if status.0 {
+        "OK".to_string()
+    } else {
+        "Error".to_string()
+    }
+}
+
 pub fn check_status(cookies: &Cookies<'_>) -> (bool, String) {
     let mut user = HashMap::new();
     if cookies.iter().count() != 0 {

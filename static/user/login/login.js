@@ -1,3 +1,16 @@
+function check() {
+    $.ajax({
+        type: "GET",
+        dataType: "text",
+        url: "/check",
+        success: function (request) {
+            if (request == "OK") {
+                window.location.href = "/device";
+            }
+        }
+    });
+}
+
 function login() {
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
@@ -15,3 +28,5 @@ function login() {
         }
     });
 }
+
+check()

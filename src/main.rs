@@ -30,6 +30,7 @@ use crate::db::token::static_rocket_route_info_for_token_delete;
 use crate::db::token::static_rocket_route_info_for_token_create;
 use crate::db::user::static_rocket_route_info_for_user_read;
 use crate::db::user::static_rocket_route_info_for_user_read_by_name;
+use crate::cookie::static_rocket_route_info_for_check;
 
 #[database("info")]
 pub struct DbConn(diesel::MysqlConnection);
@@ -39,6 +40,7 @@ fn rocket_outside() -> rocket::Rocket {
     config.set_log_level(LoggingLevel::Critical);
     rocket::custom(config)
         .mount("/", StaticFiles::from("static"))
+        .mount("/", routes![check])
         .mount("/device", routes![new_token, send_command, get_register_device])
         .mount("/user", routes![login])
 }
