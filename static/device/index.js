@@ -3,8 +3,6 @@ function get_register_device() {
         type: "GET",
         dataType: "json",
         url: "/device/get_register_device",
-        contentType: "",
-        data: "",
         success: function (json) {
             let table = document.getElementById("device");
             let tr = document.createElement("tr");
@@ -25,17 +23,30 @@ function get_register_device() {
 
                 if (value.online) {
                     let command_select = document.createElement("select");
-                    let command_option = document.createElement("option");
                     let button = document.createElement("input");
 
-                    command_option.text = "GreenLEDLight";
+                    $.ajax({
+                        type: "GET",
+                        dataType: "text",
+                        url: "/device/command/get_all_commands",
+                        success: function (commands) {
+                            for (let command of commands.split(',')) {
+                                let option = document.createElement("option");
+                                option.text = command;
+                                command_select.appendChild(option);
+                            }
+                        },
+                        error: function () {
+                            window.location.href = "/user/login";
+                        }
+                    });
 
+                    command_select.id = "commands";
                     button.type = "button";
                     button.id = value.token;
                     button.onclick = execute;
                     button.value = "执行";
 
-                    command_select.appendChild(command_option);
                     op.appendChild(command_select);
                     op.appendChild(button);
                 } else {
@@ -64,11 +75,8 @@ function execute() {
         dataType: "text",
         url: "/device/command/" + this.id,
         contentType: "application/json",
-        data: JSON.stringify({
-            "board": command_option.toString(),
-            "esp": "None"
-        }),
+        data: JSON.stringify(command_option.toString()),
     });
 }
 
-get_register_device()
+get_register_device();

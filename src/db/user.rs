@@ -1,6 +1,6 @@
 use rocket_contrib::json::Json;
-use crate::DbConn;
 use diesel::prelude::*;
+use crate::DbConn;
 
 #[derive(Serialize, Deserialize, Queryable)]
 pub struct User {

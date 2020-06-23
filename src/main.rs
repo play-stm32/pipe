@@ -21,6 +21,7 @@ use rocket::logger::LoggingLevel;
 use crate::server::Server;
 use crate::device::token::static_rocket_route_info_for_new_token;
 use crate::device::command::static_rocket_route_info_for_send_command;
+use crate::device::command::static_rocket_route_info_for_get_all_commands;
 use crate::device::index::static_rocket_route_info_for_get_register_device;
 use crate::user::login::static_rocket_route_info_for_login;
 use crate::db::token::static_rocket_route_info_for_token_read;
@@ -41,7 +42,8 @@ fn rocket_outside() -> rocket::Rocket {
     rocket::custom(config)
         .mount("/", StaticFiles::from("static"))
         .mount("/", routes![check])
-        .mount("/device", routes![new_token, send_command, get_register_device])
+        .mount("/device/command", routes![send_command, get_all_commands])
+        .mount("/device", routes![new_token, get_register_device])
         .mount("/user", routes![login])
 }
 
