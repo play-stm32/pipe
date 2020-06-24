@@ -39,6 +39,7 @@ pub struct DbConn(diesel::MysqlConnection);
 fn rocket_outside() -> rocket::Rocket {
     let mut config = rocket::ignite().config().clone();
     config.set_log_level(LoggingLevel::Critical);
+    config.address = "0.0.0.0".to_string();
     rocket::custom(config)
         .mount("/", StaticFiles::from("static"))
         .mount("/", routes![check])
